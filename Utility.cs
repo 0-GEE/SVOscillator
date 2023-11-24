@@ -25,6 +25,12 @@ namespace SVOscillator
             return (int)ReadFloat(msg);
         }
 
+        public static string ReadString(string msg)
+        {
+            Console.WriteLine(msg);
+            return Console.ReadLine();
+        }
+
         public static void WaitForUserInput(string msg)
         {
             Console.WriteLine(msg);
@@ -54,6 +60,22 @@ namespace SVOscillator
             return retVal;
         }
 
+        public static OsuParsers.Beatmaps.Objects.TimingPoint MakeRedLine(float offset, int bpm, OsuParsers.Enums.Beatmaps.TimeSignature timeSignature = OsuParsers.Enums.Beatmaps.TimeSignature.SimpleQuadruple)
+        {
+            var retVal = new OsuParsers.Beatmaps.Objects.TimingPoint();
+
+            retVal.Inherited = false;
+            retVal.CustomSampleSet = 1;
+            retVal.SampleSet = OsuParsers.Enums.Beatmaps.SampleSet.Soft;
+            retVal.Offset = (int)offset;
+            retVal.Effects = OsuParsers.Enums.Beatmaps.Effects.None;
+            retVal.TimeSignature = timeSignature;
+            retVal.Volume = 50;
+            retVal.BeatLength = BpmToBeatlength(bpm);
+
+            return retVal;
+        }
+
         public static bool TryFindExistingByOffset(List<OsuParsers.Beatmaps.Objects.TimingPoint> timingPoints, float offset, out int result)
         {
             for (int i = 0; i < timingPoints.Count; i++)
@@ -70,10 +92,44 @@ namespace SVOscillator
 
         }
 
+        public static bool TryFindMostRecentTimingPoint(List<OsuParsers.Beatmaps.Objects.TimingPoint> timingPoints, float offset, out int result, bool inherited = true)
+        {
+            for (float time = (int)offset; time >= 0; time--)
+            {
+                if (TryFindExistingByOffset(timingPoints, time, out result))
+                {
+                    if (timingPoints[result].Inherited == inherited)
+                    {
+                        return true;
+                    }
+
+                    continue;
+                }
+            }
+
+            result = -1;
+            return false;
+        }
+
 
         public static float CalcBeatlength(float sv)
         {
             return 1 / ((float)-0.01 * sv);
+        }
+
+        public static float CalcSv(double beatLength)
+        {
+            return -1f / (0.01f * (float)beatLength);
+        }
+
+        public static double BpmToBeatlength(int bpm)
+        {
+            return 60000f / bpm;
+        }
+
+        public static int BeatlengthToBpm(double beatLength)
+        {
+            return (int)Math.Round(60000f / beatLength);
         }
     }
 }

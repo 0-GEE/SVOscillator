@@ -13,29 +13,29 @@ namespace SVOscillator
             DotEnv.Load();
             string pathBase = Environment.GetEnvironmentVariable("SONGS_FOLDER");
 
-            if (args.Length == 0)
+           while (true)
             {
-                Oscillator.Generate(pathBase);
-                return;
+                string mode = Utility.ReadString("Enter mode or 'q' to quit");
+
+                switch (mode)
+                {
+                    case "o":
+                        Oscillator.Generate(pathBase);
+                        break;
+
+                    case "t":
+                        TickrateManipulator.Generate(pathBase);
+                        break;
+
+                    case "q":
+                        return;
+
+                    default:
+                        Console.WriteLine($"Invalid mode '{mode}'. Mode must be one of 'o', 't'.");
+                        break;
+                }
             }
-
-
-            string mode = args[0];
-
-            switch (mode)
-            {
-                case "o":
-                    Oscillator.Generate(pathBase);
-                    break;
-
-                case "t":
-                    TickrateManipulator.Generate(pathBase);
-                    break;
-
-                default:
-                    Console.WriteLine($"Invalid mode '{mode}'. Mode must be one of 'o', 't'.");
-                    break;
-            }
+            
 
 
         }
