@@ -92,15 +92,36 @@ namespace SVOscillator
 
         }
 
+        public static bool TryFindExistingByOffset(List<OsuParsers.Beatmaps.Objects.TimingPoint> timingPoints, float offset, out List<int> result)
+        {
+            result = new List<int>();
+            bool retVal = false;
+
+            for (int i = 0; i < timingPoints.Count; i++)
+            {
+                if (timingPoints[i].Offset == (int)offset)
+                {
+                    result.Add(i);
+                    retVal = true;
+                }
+            }
+
+            return retVal;
+        }
+
         public static bool TryFindMostRecentTimingPoint(List<OsuParsers.Beatmaps.Objects.TimingPoint> timingPoints, float offset, out int result, bool inherited = true)
         {
             for (float time = (int)offset; time >= 0; time--)
             {
-                if (TryFindExistingByOffset(timingPoints, time, out result))
+                if (TryFindExistingByOffset(timingPoints, time, out List<int> candidates))
                 {
-                    if (timingPoints[result].Inherited == inherited)
+                    foreach (int idx in candidates)
                     {
-                        return true;
+                        if (timingPoints[idx].Inherited == inherited)
+                        {
+                            result = idx;
+                            return true;
+                        }
                     }
 
                     continue;
